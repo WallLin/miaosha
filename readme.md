@@ -4,8 +4,16 @@
 
 Java JDK: 1.8
 
-SpingBoot: 2.1.18
+SpringBoot: 2.1.18
 
 Mysql: 8.0.15
 
-Redis: 
+Redis: 5.0.7
+
+
+### 参考资料
+
+[Redis](https://redis.io/)
+
+[Jedis](https://github.com/xetorthio/jedis)
+
