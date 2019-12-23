@@ -5,37 +5,97 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.2.RELEASE</version>
+		<version>2.1.8.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>cn.kyrie</groupId>
 	<artifactId>miaosha</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>miaosha</name>
-	<description>Demo project for Spring Boot</description>
+	<description>MiaoSha</description>
 
 	<properties>
 		<java.version>1.8</java.version>
+		<fastjson.version>1.2.60</fastjson.version>
+		<mybatis.version>2.1.0</mybatis.version>
+		<mysql-connector.version>8.0.17</mysql-connector.version>
+		<druid.version>1.1.21</druid.version>
+		<commons-lang3.version>3.9</commons-lang3.version>
+		<lombok.version>1.18.10</lombok.version>
 	</properties>
 
 	<dependencies>
+		<!-- Spring Boot Start-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
+		<!-- Spring Boot End-->
+
+		<!-- DataSource Start-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+			<version>${mysql-connector.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>${mybatis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>${druid.version}</version>
+		</dependency>
+
+		<!-- DataSource End-->
+
+		<!-- FastJson Start-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.xmlunit</groupId>
+			<artifactId>xmlunit-core</artifactId>
+		</dependency>
+		<!-- FastJson End-->
+
+		<!-- Commons-long3 Start-->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+		</dependency>
+		<!-- Commons-long3 End-->
+
+		<!-- Lombok Start-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Lombok End-->
+
 	</dependencies>
+
 
 	<build>
 		<plugins>
