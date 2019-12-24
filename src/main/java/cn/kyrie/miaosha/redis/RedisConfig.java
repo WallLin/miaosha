@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
  * @date 2019-12-23 - 20:42
  */
 @Component
+// 读取application.properties文件中以redis开头的配置项
 @ConfigurationProperties(prefix = "redis")
 @Data
 public class RedisConfig {

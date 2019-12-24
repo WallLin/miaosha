@@ -16,11 +16,22 @@ public class RedisService {
     @Autowired
     JedisPool jedisPool;
 
-    public <T> T get(String key, Class<T> clazz) {
+    /**
+     * 通过 Key 获单个对象
+     *
+     * @param prefix
+     * @param key
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public <T> T get(KeyPrefix prefix, String key, Class<T> clazz) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String str = jedis.get(key);
+            // 生成真正的key
+            String realKey = prefix.getPrefix() + key;
+            String str = jedis.get(realKey);
             T t = stringToBean(str, clazz);
             return t;
         } finally {
@@ -28,15 +39,32 @@ public class RedisService {
         }
     }
 
-    public <T> Boolean set(String key, T value) {
+    /**
+     * 设置对象
+     *
+     * @param prefix
+     * @param key
+     * @param value
+     * @param <T>
+     * @return
+     */
+    public <T> boolean set(KeyPrefix prefix, String key, T value) {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
+            // 生成真正的key
+            String realKey = prefix.getPrefix() + key;
             String str = beanToString(value);
             if (str == null) {
                 return false;
             }
-            jedis.set(key, str);
+            int expireSeconds = prefix.expireSeconds();
+            if (expireSeconds <= 0) { // 永不过期
+                jedis.set(realKey, str);
+            } else {
+                // 设置key，同时设置有效期
+                jedis.setex(realKey, expireSeconds, str);
+            }
             return true;
         } finally {
             returnToPool(jedis);
@@ -44,7 +72,65 @@ public class RedisService {
     }
 
     /**
-     * 序列化：将 Bean 对象转成 字符串
+     * 判断key是否存在
+     * @param prefix
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public <T> boolean exists(KeyPrefix prefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            // 生成真正的key
+            String realKey = prefix.getPrefix() + key;
+            return jedis.exists(realKey);
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 增加值
+     * @param prefix
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public <T> long incr(KeyPrefix prefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            // 生成真正的key
+            String realKey = prefix.getPrefix() + key;
+            return jedis.incr(realKey);
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 减少值
+     * @param prefix
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public <T> long decr(KeyPrefix prefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            // 生成真正的key
+            String realKey = prefix.getPrefix() + key;
+            return jedis.decr(realKey);
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 序列化：将 Bean 对象转成字符串
+     *
      * @param value
      * @param <T>
      * @return
@@ -67,6 +153,7 @@ public class RedisService {
 
     /**
      * 反序列化：将字符串转成Bean对象
+     *
      * @param str
      * @param clazz
      * @param <T>
