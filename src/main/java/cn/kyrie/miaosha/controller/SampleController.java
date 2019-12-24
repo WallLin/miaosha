@@ -25,13 +25,6 @@ public class SampleController {
     @Autowired
     private RedisService redisService;
 
-
-    @RequestMapping("/thymeleaf")
-    public String thymeleaf(Model model) {
-        model.addAttribute("name", "kyrie");
-        return "hello";
-    }
-
     @RequestMapping("/do/get")
     @ResponseBody
     public Result<User> doGet () {
