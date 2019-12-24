@@ -64,7 +64,6 @@
 			<artifactId>druid</artifactId>
 			<version>${druid.version}</version>
 		</dependency>
-
 		<!-- DataSource End-->
 
 		<!-- FastJson Start-->
@@ -79,17 +78,21 @@
 		</dependency>
 		<!-- FastJson End-->
 
-		<!-- Commons-long3 Start-->
+		<!-- MD5 Start-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang3.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 		</dependency>
-		<!-- Commons-long3 End-->
+		<!-- MD5 End-->
 
 		<!-- Lombok Start-->
 		<dependency>
