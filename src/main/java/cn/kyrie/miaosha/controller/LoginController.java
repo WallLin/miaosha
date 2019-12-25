@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.Valid;
+
 /**
  * @author kyrie
  * @date 2019-12-22 - 10:52
@@ -33,12 +35,12 @@ public class LoginController {
 
     @RequestMapping("/do_login")
     @ResponseBody
-    public Result<CodeMsg> doLogin (LoginVo loginVo) {
+    public Result<Boolean> doLogin (@Valid LoginVo loginVo) {
         log.info(loginVo.toString());
         // 参数校验
         if (loginVo == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
-        } else {
+        } /*else {
             String mobile = loginVo.getMobile();
             String inputPass = loginVo.getPassword();
             if (StringUtils.isEmpty(inputPass)) {
@@ -50,11 +52,11 @@ public class LoginController {
             if (!ValidatorUtil.isMobile(mobile)) {
                 return Result.error(CodeMsg.MOBILE_ERROR);
             }
-        }
+        }*/
         // 登录
         CodeMsg cm = miaoshaUserService.login(loginVo);
         if (cm.getCode() == 0) {
-            return Result.success(CodeMsg.SUCCESS);
+            return Result.success(true);
         } else {
             return Result.error(cm);
         }

@@ -26,7 +26,7 @@
 	</properties>
 
 	<dependencies>
-		<!-- Spring Boot Start-->
+		<!-- SpringBoot Start-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -45,7 +45,12 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<!-- Spring Boot End-->
+		<!-- JSR303 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<!-- SpringBoot End-->
 
 		<!-- DataSource Start-->
 		<dependency>
@@ -112,7 +117,6 @@
 		<!-- Jedis End-->
 
 	</dependencies>
-
 
 	<build>
 		<plugins>
