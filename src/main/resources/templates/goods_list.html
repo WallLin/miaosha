@@ -22,7 +22,7 @@
 <body>
 
 <div class="panel panel-default">
-  <div class="panel-heading">秒杀商品列表11</div>
+  <div class="panel-heading">秒杀商品列表</div>
     <div  class="panel-heading">
         <button onclick="messageRegister()">消息中心</button>
         <input id="userid" th:value="${user.id}">
@@ -35,7 +35,7 @@
                 <td th:text="${goods.goodsPrice}"></td>  
                 <td th:text="${goods.miaoshaPrice}"></td>  
                 <td th:text="${goods.stockCount}"></td>
-       　　　　　 <td><a th:href="'/goods_detail.htm?goodsId='+${goods.id}">详情</a></td>　　
+       　　　　　 <td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td>　　
     </tr>
   </table>
 </div>
