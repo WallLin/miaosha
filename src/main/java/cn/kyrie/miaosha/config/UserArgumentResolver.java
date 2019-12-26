@@ -52,6 +52,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
             return null;
         }
+        // 设置优先级：先取paramToken,再取cookieToken
         String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
         return miaoshaUserService.getByToken(response, token);
     }
