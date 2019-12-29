@@ -33,6 +33,16 @@ public class MiaoshaController {
     @Autowired
     MiaoshaService miaoshaService;
 
+    /**
+     * error: 1)0.78%; 2)1.52%; 3)0.90%;
+     *
+     * QPS:  1)835; 2)1016; 3)1140;
+     *
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
     @RequestMapping("/do_miaosha")
     public String doMiaosha(Model model, MiaoshaUser user,
                             @RequestParam(name = "goodsId") long goodsId) {

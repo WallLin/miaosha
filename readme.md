@@ -17,3 +17,11 @@ Redis: 5.0.7
 
 [Jedis](https://github.com/xetorthio/jedis)
 
+[JMeter官网](http://jmeter.apache.org/)
+
+[JMeter下载](http://jmeter.apache.org/download_jmeter.cgi)
+
+[JMeter用户手册](http://jmeter.apache.org/usermanual/index.html)
+
+
+
