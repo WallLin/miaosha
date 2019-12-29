@@ -58,15 +58,16 @@ public class GoodsController {
     public String list(HttpServletRequest request, HttpServletResponse response,
                        Model model, MiaoshaUser user) {
         model.addAttribute("user", user);
-        List<GoodsVo> goodsList = goodsService.listGoodsVo();
-        model.addAttribute("goodsList", goodsList);
-        //return "goods_list";
-
         // 1、取缓存
         String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
+        // 先取缓存，再查数据库
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        model.addAttribute("goodsList", goodsList);
+        //return "goods_list";
+
         // spring5
         WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());
         // 2、手动渲染模板
@@ -91,14 +92,14 @@ public class GoodsController {
                          Model model, MiaoshaUser user,
                          @PathVariable(name = "goodsId") Long goodsId) {
         model.addAttribute("user", user);
-        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-
         // 1、取缓存
         // 与页面缓存不一样的地方是：每个商品对应一个详情页面，因此每个详情页要单独存储，设置key时要加上商品的id
         String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
+        // 先取缓存，再查数据库，减少数据库的访问压力
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
 
         long startAt = goods.getStartDate().getTime(); // 秒杀开始时间
         long endAt = goods.getEndDate().getTime(); // 秒杀结束时间
