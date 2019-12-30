@@ -3,7 +3,9 @@ package cn.kyrie.miaosha.controller;
 import cn.kyrie.miaosha.domain.MiaoshaUser;
 import cn.kyrie.miaosha.redis.GoodsKey;
 import cn.kyrie.miaosha.redis.RedisService;
+import cn.kyrie.miaosha.result.Result;
 import cn.kyrie.miaosha.service.GoodsService;
+import cn.kyrie.miaosha.vo.GoodsDetailVo;
 import cn.kyrie.miaosha.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,6 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.*;
 import java.util.List;
 
 /**
@@ -48,6 +49,11 @@ public class GoodsController {
      * error: 1)3.46%; 2)5.91%; 3)8.42%
      *
      * QPS: 1)450; 2)409; 3)462
+     *
+     * 2.页面缓存
+     * error: 1)4.38%; 2)0.55%; 3)1.26%
+     *
+     * QPS: 1)1389; 2)1487; 3)1524
      *
      * @param model
      * @param user
@@ -80,6 +86,43 @@ public class GoodsController {
     }
 
     /**
+     * 页面静态化
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/detail/{goodsId}")
+    @ResponseBody
+    public Result<GoodsDetailVo> detail(MiaoshaUser user, @PathVariable(name = "goodsId") Long goodsId) {
+
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+
+        long startAt = goods.getStartDate().getTime(); // 秒杀开始时间
+        long endAt = goods.getEndDate().getTime(); // 秒杀结束时间
+        long now = System.currentTimeMillis(); // 当前时间
+
+        int miaoshaStatus = 0; // '0':秒杀倒计时；'1':秒杀进行中；'2':秒杀已结束
+        int remainSeconds = 0; // 秒杀倒计时还剩多少秒
+
+        if (now < startAt) { // 秒杀还没开始，倒计时
+            miaoshaStatus = 0;
+            remainSeconds = (int) ((startAt - now) / 1000);
+        } else if (now > endAt) { // 秒杀已结束
+            miaoshaStatus = 2;
+            remainSeconds = -1;
+        } else { // 秒杀进行中
+            miaoshaStatus = 1;
+            remainSeconds = 0;
+        }
+        GoodsDetailVo goodsDetailVo = new GoodsDetailVo();
+        goodsDetailVo.setGoods(goods);
+        goodsDetailVo.setUser(user);
+        goodsDetailVo.setMiaoshaStatus(miaoshaStatus);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+        return Result.success(goodsDetailVo);
+    }
+
+    /**
      * URL缓存
      * @param model
      * @param user
@@ -88,7 +131,7 @@ public class GoodsController {
      */
     @RequestMapping(value = "/to_detail/{goodsId}", produces = "text/html")
     @ResponseBody
-    public String detail(HttpServletRequest request, HttpServletResponse response,
+    public String detail2(HttpServletRequest request, HttpServletResponse response,
                          Model model, MiaoshaUser user,
                          @PathVariable(name = "goodsId") Long goodsId) {
         model.addAttribute("user", user);
