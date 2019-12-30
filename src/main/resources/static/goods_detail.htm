@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
+<html>
 <head>
     <title>商品详情</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <!-- jquery -->
     <script type="text/javascript" src="/js/jquery.min.js"></script>
     <!-- bootstrap -->
-    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css"/>
     <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
     <!-- jquery-validator -->
     <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script>
@@ -31,7 +32,7 @@
         </tr>
         <tr>
             <td>商品图片</td>
-            <td colspan="3"><img id="goodsImg" width="200" height="200" /></td>
+            <td colspan="3"><img id="goodsImg" width="200" height="200"/></td>
         </tr>
         <tr>
             <td>秒杀开始时间</td>
@@ -42,7 +43,7 @@
             </td>
             <td>
                 <form id="miaoshaForm" method="post" action="/miaosha/do_miaosha">
-                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
+                    <button id="buyButton" class="btn btn-primary btn-block" type="button" onclick="doMiaosha()">立即秒杀</button>
                     <input type="hidden" name="goodsId" id="goodsId"/>
                 </form>
             </td>
@@ -63,7 +64,28 @@
 </div>
 </body>
 <script>
-    $(function(){
+
+    function doMiaosha() {
+        $.ajax({
+            url: "/miaosha/do_miaosha",
+            type: "POST",
+            data: {
+                goodsId: $("#goodsId").val()
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    window.location.href = "/order_detail.htm";
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function () {
+                layer.msg("客户端请求有误！");
+            }
+        });
+    }
+
+    $(function () {
         getDetail();
     });
 
@@ -72,8 +94,12 @@
         $.ajax({
             url: "/goods/detail/" + goodsId,
             type: "GET",
-            success: function(data) {
-                render(data.data); // 渲染页面
+            success: function (data) {
+                if (data.code == 0) {
+                    render(data.data); // 渲染页面
+                } else {
+                    layer.msg(data.msg);
+                }
             },
             error: function () {
                 layer.msg("客户端请求有误！");
@@ -97,29 +123,30 @@
         $("#goodsImg").attr("src", goods.goodsImg);
         $("#startDate").text(new Date(goods.startDate).format("yyyy-MM-dd hh:mm:ss"));
         $("#remainSeconds").val(remainSeconds);
+        $("#goodsId").val(goods.id);
         $("#goodsPrice").text(goods.goodsPrice);
         $("#miaoshaPrice").text(goods.miaoshaPrice);
         $("#stockCount").text(goods.stockCount);
         countDown();
     }
 
-    function countDown(){
+    function countDown() {
         var remainSeconds = $("#remainSeconds").val();
         var timeout;
-        if(remainSeconds > 0){//秒杀还没开始，倒计时
+        if (remainSeconds > 0) {//秒杀还没开始，倒计时
             $("#buyButton").attr("disabled", true);
             $("#miaoshaTip").html("秒杀倒计时：" + remainSeconds + "秒");
-            timeout = setTimeout(function(){
+            timeout = setTimeout(function () {
                 $("#remainSeconds").val(remainSeconds - 1);
                 countDown();
-            },1000);
-        }else if(remainSeconds == 0){//秒杀进行中
+            }, 1000);
+        } else if (remainSeconds == 0) {//秒杀进行中
             $("#buyButton").attr("disabled", false);
-            if(timeout){
+            if (timeout) {
                 clearTimeout(timeout);
             }
             $("#miaoshaTip").html("秒杀进行中");
-        }else{//秒杀已经结束
+        } else {//秒杀已经结束
             $("#buyButton").attr("disabled", true);
             $("#miaoshaTip").html("秒杀已经结束");
         }
