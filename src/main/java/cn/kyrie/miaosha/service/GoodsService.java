@@ -29,7 +29,8 @@ public class GoodsService {
      * 减库存
      * @param goodsId
      */
-    public void reduceStock(long goodsId) {
-        goodsDao.reduceStockByGoodsId(goodsId);
+    public boolean reduceStock(long goodsId) {
+        int ret = goodsDao.reduceStockByGoodsId(goodsId);
+        return ret > 0;
     }
 }

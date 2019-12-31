@@ -37,9 +37,11 @@ public class MiaoshaController {
     MiaoshaService miaoshaService;
 
     /**
-     * error: 1)0.78%; 2)1.52%; 3)0.90%;
+     * 2000 * 10
      *
-     * QPS:  1)835; 2)1016; 3)1140;
+     * error: 1)4.52%; 2)3.75%; 3)5.78%;
+     *
+     * QPS:  1)921; 2)1145; 3)991;
      *
      * @param user
      * @param goodsId
@@ -53,6 +55,7 @@ public class MiaoshaController {
         }
         // 判断库存
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+        // 10个商品，一个用户同时发送两个请求：req1、req2, 解决方法：给数据库表字段(userId,goodsId)加上唯一索引
         int stockCount = goods.getStockCount();
         if (stockCount <= 0) {
             return Result.error(CodeMsg.MIAO_SHA_OVER);
