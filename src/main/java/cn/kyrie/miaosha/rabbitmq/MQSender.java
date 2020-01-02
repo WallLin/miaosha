@@ -23,4 +23,18 @@ public class MQSender {
         amqpTemplate.convertAndSend(MQConfig.QUEUE, msg);
         log.info("send: " + msg);
     }
+
+    public void sendTopic(Object message) {
+        String msg = RedisService.beanToString(message);
+        log.info("send: " + msg);
+        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key1", msg + "1");
+        amqpTemplate.convertAndSend(MQConfig.TOPIC_EXCHANGE, "topic.key2", msg + "2");
+    }
+
+    public void sendFanout(Object message) {
+        String msg = RedisService.beanToString(message);
+        log.info("send: " + msg);
+        amqpTemplate.convertAndSend(MQConfig.FANOUT_EXCHANGE, "", msg + "1");
+        amqpTemplate.convertAndSend(MQConfig.FANOUT_EXCHANGE, "", msg + "2");
+    }
 }

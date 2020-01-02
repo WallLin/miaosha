@@ -43,6 +43,20 @@ public class SampleController {
         return Result.success(true);
     }
 
+    @RequestMapping("/mq/topic")
+    @ResponseBody
+    public Result<Boolean> sendTopic () {
+        mqSender.sendTopic("hello, MQ!");
+        return Result.success(true);
+    }
+
+    @RequestMapping("/mq/fanout")
+    @ResponseBody
+    public Result<Boolean> sendFanout () {
+        mqSender.sendTopic("hello, MQ!");
+        return Result.success(true);
+    }
+
     @RequestMapping("/do/tx")
     @ResponseBody
     public Result<Boolean> doTx () {

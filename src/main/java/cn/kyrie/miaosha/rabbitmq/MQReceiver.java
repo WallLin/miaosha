@@ -22,4 +22,32 @@ public class MQReceiver {
     public void receive(String message) {
         log.info("receive: " + message);
     }
+
+    /**
+     * Topic模式 交换机Exchange
+     * @param message
+     */
+    /*@RabbitListener(queues = MQConfig.TOPIC_QUEUE1)
+    public void receiveTopic1(String message) {
+        log.info("topic queue1 receive: " + message);
+    }
+
+    @RabbitListener(queues = MQConfig.TOPIC_QUEUE2)
+    public void receiveTopic2(String message) {
+        log.info("topic queue2 receive: " + message);
+    }*/
+
+    /**
+     * Fanout模式 交换机Exchange
+     * @param message
+     */
+    @RabbitListener(queues = MQConfig.TOPIC_QUEUE1)
+    public void receiveTopic1(String message) {
+        log.info("fanout queue1 receive: " + message);
+    }
+
+    @RabbitListener(queues = MQConfig.TOPIC_QUEUE2)
+    public void receiveTopic2(String message) {
+        log.info("fanout queue2 receive: " + message);
+    }
 }
