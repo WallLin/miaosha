@@ -23,5 +23,9 @@ Redis: 5.0.7
 
 [JMeter用户手册](http://jmeter.apache.org/usermanual/index.html)
 
+[Erlang](https://www.erlang.org/downloads)
+
+[RabbitMQ](https://www.rabbitmq.com/)
+
 
 

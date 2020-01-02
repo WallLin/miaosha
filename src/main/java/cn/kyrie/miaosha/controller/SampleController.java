@@ -1,6 +1,7 @@
 package cn.kyrie.miaosha.controller;
 
 import cn.kyrie.miaosha.domain.User;
+import cn.kyrie.miaosha.rabbitmq.MQSender;
 import cn.kyrie.miaosha.redis.RedisService;
 import cn.kyrie.miaosha.redis.UserKey;
 import cn.kyrie.miaosha.result.Result;
@@ -25,11 +26,21 @@ public class SampleController {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    MQSender mqSender;
+
     @RequestMapping("/do/get")
     @ResponseBody
     public Result<User> doGet () {
         User user = userService.getUserById(1);
         return Result.success(user);
+    }
+
+    @RequestMapping("/mq")
+    @ResponseBody
+    public Result<Boolean> send () {
+        mqSender.send("hello, MQ!");
+        return Result.success(true);
     }
 
     @RequestMapping("/do/tx")
