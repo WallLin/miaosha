@@ -1,5 +1,6 @@
 package cn.kyrie.miaosha.controller;
 
+import cn.kyrie.miaosha.domain.MiaoshaOrder;
 import cn.kyrie.miaosha.domain.MiaoshaUser;
 import cn.kyrie.miaosha.rabbitmq.MQSender;
 import cn.kyrie.miaosha.rabbitmq.MiaoshaMessage;
@@ -16,6 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,9 +78,14 @@ public class MiaoshaController implements InitializingBean {
      */
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getMiaoshaPath(MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId) {
+    public Result<String> getMiaoshaPath(MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId,
+                                         @RequestParam(name = "verifyCode") int verifyCode) {
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        boolean check = miaoshaService.checkVerifyCode(user, goodsId, verifyCode);
+        if (!check) {
+            return Result.error(CodeMsg.VERIFY_CODE_ERROR);
         }
         String path = miaoshaService.createMiaoshaPath(user, goodsId);
         return Result.success(path);
@@ -106,9 +116,8 @@ public class MiaoshaController implements InitializingBean {
         // 检查秒杀地址是否正确
         boolean check = miaoshaService.checkMiaoshaPath(user, goodsId, path);
         if (!check) {
-            return Result.error(CodeMsg.IILEGAL_PATH);
+            return Result.error(CodeMsg.ILLEGAL_PATH);
         }
-
         // 内存标记，减少redis访问, 当第11，12个请求过来的时候，已经没有库存了，没必要访问redis了，直接返回秒杀失败
         boolean over = localOverMap.get(goodsId);
         if (over) {
@@ -120,6 +129,11 @@ public class MiaoshaController implements InitializingBean {
         if (stock < 0) {
             localOverMap.put(goodsId, true); // 没有库存
             return Result.error(CodeMsg.MIAO_SHA_OVER);
+        }
+        // 判断该用户是否已经秒杀了，避免重复秒杀
+        MiaoshaOrder miaoshaOrder = orderService.getMiaoshaOrderByUserIdAndGoodsId(user.getId(), goodsId);
+        if (miaoshaOrder != null) {
+            return Result.error(CodeMsg.REPEATE_MIAOSHA);
         }
         // 入队
         MiaoshaMessage mm = new MiaoshaMessage();
@@ -159,5 +173,30 @@ public class MiaoshaController implements InitializingBean {
         }
         long res = miaoshaService.getMiaoshaResult(user.getId(), goodsId);
         return Result.success(res);
+    }
+
+    /**
+     * 请求验证码
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getVerifyCode(HttpServletResponse response, MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId) {
+        if (user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        try {
+            BufferedImage image  = miaoshaService.createVerifyCode(user, goodsId);
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return Result.error(CodeMsg.MIAOSHA_FAIL);
+        }
     }
 }
