@@ -53,12 +53,12 @@ public class OrderService {
         orderInfo.setGoodsPrice(goods.getMiaoshaPrice());
         orderInfo.setOrderChannel(1);
         orderInfo.setStatus(0);
-        long orderId = orderDao.insert(orderInfo);  // 返回订单id
+        orderDao.insert(orderInfo);
         // 写入秒杀订单
         MiaoshaOrder miaoshaOrder = new MiaoshaOrder();
         miaoshaOrder.setUserId(user.getId());   // 加上唯一索引
         miaoshaOrder.setGoodsId(goods.getId()); // 加上唯一索引
-        miaoshaOrder.setOrderId(orderId);
+        miaoshaOrder.setOrderId(orderInfo.getId());
         orderDao.insertMiaoshaOrder(miaoshaOrder);
 
         // 将订单放到缓存中

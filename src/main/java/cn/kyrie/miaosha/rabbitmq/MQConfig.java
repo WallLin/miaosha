@@ -11,23 +11,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MQConfig {
 
+    public static final String MIAOSHA_QUEUE = "miaosha.queue";
     public static final String QUEUE = "queue";
     public static final String TOPIC_QUEUE1 = "topic.queue1";
     public static final String TOPIC_QUEUE2 = "topic.queue2";
     public static final String TOPIC_EXCHANGE = "topicExchange";
     public static final String FANOUT_EXCHANGE = "fanoutExchange";
 
+    @Bean
+    public Queue miaoshaQueue() {
+        return new Queue(MIAOSHA_QUEUE, true); // arg1: 队列名称; arg2: 是否持久化
+    }
+
     /**
      * Direct模式 交换机Exchange
-     */
+     *//*
     @Bean
     public Queue queue() {
         return new Queue(QUEUE, true); // arg1: 队列名称; arg2: 是否持久化
     }
 
-    /**
+    *//**
      * Topic模式 交换机Exchange
-     */
+     *//*
     @Bean
     public Queue topicQueue1() {
         return new Queue(TOPIC_QUEUE1, true); // arg1: 队列名称; arg2: 是否持久化
@@ -49,9 +55,9 @@ public class MQConfig {
         return BindingBuilder.bind(topicQueue2()).to(topicExchange()).with("topic.#");
     }
 
-    /**
+    *//**
      * Fanout模式 交换机Exchange
-     */
+     *//*
     @Bean
     public FanoutExchange fanoutExchange() {
         return new FanoutExchange(FANOUT_EXCHANGE);
@@ -63,5 +69,5 @@ public class MQConfig {
     @Bean
     public Binding fanoutBinding2() {
         return BindingBuilder.bind(topicQueue2()).to(fanoutExchange());
-    }
+    }*/
 }

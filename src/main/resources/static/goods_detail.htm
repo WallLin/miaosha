@@ -43,7 +43,8 @@
             </td>
             <td>
                 <form id="miaoshaForm" method="post" action="/miaosha/do_miaosha">
-                    <button id="buyButton" class="btn btn-primary btn-block" type="button" onclick="doMiaosha()">立即秒杀</button>
+                    <button id="buyButton" class="btn btn-primary btn-block" type="button" onclick="doMiaosha()">立即秒杀
+                    </button>
                     <input type="hidden" name="goodsId" id="goodsId"/>
                 </form>
             </td>
@@ -65,6 +66,41 @@
 </body>
 <script>
 
+    function getMiaoshaResult(goodsId) {
+        $.ajax({
+            url: "/miaosha/result",
+            type: "GET",
+            data: {
+                goodsId: goodsId
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    var result = data.data;
+                    if (result > 0) { // 秒杀成功
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn: ["确认", "取消"]},
+                            function () {
+                                window.location.href = "/order_detail.htm?orderId=" + result; // 跳转订单详情
+                            },
+                            function () {
+                                layer.closeAll();
+                            });
+                    } else if (result == 0) { // 排队中，继续轮询
+                        setTimeout(function () {
+                            getMiaoshaResult(goodsId);
+                        }, 50);
+                    } else { // 秒杀失败
+                        layer.msg("对不起，秒杀失败");
+                    }
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function () {
+                layer.msg("客户端请求有误！");
+            }
+        });
+    }
+
     function doMiaosha() {
         $.ajax({
             url: "/miaosha/do_miaosha",
@@ -74,7 +110,8 @@
             },
             success: function (data) {
                 if (data.code == 0) {
-                    window.location.href = "/order_detail.htm?orderId=" + data.data.id;
+                    //window.location.href = "/order_detail.htm?orderId=" + data.data.id;
+                    getMiaoshaResult($("#goodsId").val());
                 } else {
                     layer.msg(data.msg);
                 }
