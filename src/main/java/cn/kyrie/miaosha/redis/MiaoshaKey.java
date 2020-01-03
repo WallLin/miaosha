@@ -6,9 +6,10 @@ package cn.kyrie.miaosha.redis;
  */
 public class MiaoshaKey extends BasePrefix {
 
-    private MiaoshaKey(String prefix) {
-        super(prefix);
+    private MiaoshaKey(int expireSeconds, String prefix) {
+        super(expireSeconds, prefix);
     }
 
-    public static MiaoshaKey isGoodsOver = new MiaoshaKey("go"); // 永不过期
+    public static MiaoshaKey isGoodsOver = new MiaoshaKey(0,"go"); // 永不过期
+    public static MiaoshaKey getMiaoshaPath = new MiaoshaKey(60,"mp"); // 永不过期
 }

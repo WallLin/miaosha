@@ -5,7 +5,10 @@ import cn.kyrie.miaosha.domain.MiaoshaUser;
 import cn.kyrie.miaosha.domain.OrderInfo;
 import cn.kyrie.miaosha.redis.MiaoshaKey;
 import cn.kyrie.miaosha.redis.RedisService;
+import cn.kyrie.miaosha.util.MD5Util;
+import cn.kyrie.miaosha.util.UUIDUtil;
 import cn.kyrie.miaosha.vo.GoodsVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,7 +64,7 @@ public class MiaoshaService {
         } else {
             boolean isOver = getGoodsOver(goodsId);
             if (isOver) {
-                return -1;
+                return -1; // 秒杀失败
             } else {
                 return 0; // 继续轮询
             }
@@ -70,5 +73,34 @@ public class MiaoshaService {
 
     private boolean getGoodsOver(long goodsId) {
         return redisService.exists(MiaoshaKey.isGoodsOver, "" + goodsId);
+    }
+
+    /**
+     * 检查秒杀地址是否正确
+     * @param user
+     * @param goodsId
+     * @param path
+     * @return
+     */
+    public boolean checkMiaoshaPath(MiaoshaUser user, long goodsId, String path) {
+        if (StringUtils.isEmpty(path)) {
+            return false;
+        }
+        String oldPath = redisService.get(MiaoshaKey.getMiaoshaPath, "" + user.getId() + "_" + goodsId, String.class);
+        return path.equals(oldPath);
+    }
+
+
+    /**
+     * 创建秒杀地址
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    public String createMiaoshaPath(MiaoshaUser user, long goodsId) {
+        String path = MD5Util.md5(UUIDUtil.uuid() + "123456");
+        // 保存到redis中
+        redisService.set(MiaoshaKey.getMiaoshaPath, "" + user.getId() + "_" + goodsId, path);
+        return path;
     }
 }

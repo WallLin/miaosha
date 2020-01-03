@@ -14,10 +14,7 @@ import cn.kyrie.miaosha.vo.GoodsVo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +45,7 @@ public class MiaoshaController implements InitializingBean {
     @Autowired
     MQSender sender;
 
+    // 内存标记，减少对redis访问
     private Map<Long, Boolean> localOverMap = new HashMap<>();
 
     /**
@@ -68,6 +66,22 @@ public class MiaoshaController implements InitializingBean {
     }
 
     /**
+     * 获取秒杀地址
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value = "/path", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getMiaoshaPath(MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId) {
+        if (user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        String path = miaoshaService.createMiaoshaPath(user, goodsId);
+        return Result.success(path);
+    }
+
+    /**
      * 2000 * 10
      *
      * error: 1)4.52%; 2)3.75%; 3)5.78%;
@@ -82,12 +96,19 @@ public class MiaoshaController implements InitializingBean {
      * @param goodsId
      * @return
      */
-    @RequestMapping(value = "/do_miaosha", method = RequestMethod.POST)
+    @RequestMapping(value = "/{path}/do_miaosha", method = RequestMethod.POST)
     @ResponseBody
-    public Result<Integer> doMiaosha(MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId) {
+    public Result<Integer> doMiaosha(MiaoshaUser user, @RequestParam(name = "goodsId") long goodsId,
+                                     @PathVariable(name = "path") String path) {
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
         }
+        // 检查秒杀地址是否正确
+        boolean check = miaoshaService.checkMiaoshaPath(user, goodsId, path);
+        if (!check) {
+            return Result.error(CodeMsg.IILEGAL_PATH);
+        }
+
         // 内存标记，减少redis访问, 当第11，12个请求过来的时候，已经没有库存了，没必要访问redis了，直接返回秒杀失败
         boolean over = localOverMap.get(goodsId);
         if (over) {
@@ -106,7 +127,6 @@ public class MiaoshaController implements InitializingBean {
         mm.setGoodsId(goodsId);
         sender.sendMiaoshaMessage(mm);
         return Result.success(0); // 排队中
-
 
         /*// 判断库存
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
@@ -140,31 +160,4 @@ public class MiaoshaController implements InitializingBean {
         long res = miaoshaService.getMiaoshaResult(user.getId(), goodsId);
         return Result.success(res);
     }
-
-
-    /*@RequestMapping("/do_miaosha")
-    public String doMiaosha(Model model, MiaoshaUser user,
-                            @RequestParam(name = "goodsId") long goodsId) {
-        if (user == null) {
-            return "login";
-        }
-        // 判断库存
-        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
-        int stockCount = goods.getStockCount();
-        if (stockCount <= 0) {
-            model.addAttribute("errmsg", CodeMsg.MIAO_SHA_OVER);
-            return "miaosha_fail";
-        }
-        // 判断该用户是否已经秒杀了，避免重复秒杀
-        MiaoshaOrder miaoshaOrder = orderService.getMiaoshaOrderByUserIdAndGoodsId(user.getId(), goodsId);
-        if (miaoshaOrder != null) {
-            model.addAttribute("errmsg", CodeMsg.REPEATE_MIAOSHA);
-            return "miaosha_fail";
-        }
-        // 减库存、下订单、写入秒杀订单
-        OrderInfo orderInfo = miaoshaService.miaosha(user, goods);
-        model.addAttribute("orderInfo", orderInfo);
-        model.addAttribute("goods", goods);
-        return "order_detail";
-    }*/
 }

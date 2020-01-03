@@ -2,10 +2,7 @@ package cn.kyrie.miaosha.rabbitmq;
 
 import cn.kyrie.miaosha.domain.MiaoshaOrder;
 import cn.kyrie.miaosha.domain.MiaoshaUser;
-import cn.kyrie.miaosha.domain.OrderInfo;
 import cn.kyrie.miaosha.redis.RedisService;
-import cn.kyrie.miaosha.result.CodeMsg;
-import cn.kyrie.miaosha.result.Result;
 import cn.kyrie.miaosha.service.GoodsService;
 import cn.kyrie.miaosha.service.MiaoshaService;
 import cn.kyrie.miaosha.service.OrderService;
@@ -55,7 +52,7 @@ public class MQReceiver {
             return;
         }
         // 减库存、下订单、写入秒杀订单
-        OrderInfo orderInfo = miaoshaService.miaosha(user, goods);
+        miaoshaService.miaosha(user, goods);
     }
 
     /**
